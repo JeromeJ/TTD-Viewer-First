@@ -18,7 +18,14 @@ class CameraSaver : EditorWindow
 
     void OnGUI()
     {
+        EditorGUILayout.BeginHorizontal();
+
         camera = EditorGUILayout.ObjectField("Camera", camera, typeof(Camera), true) as Camera;
+
+        if (GUILayout.Button("Get scene camera"))
+            camera = SceneView.lastActiveSceneView.camera;
+
+        EditorGUILayout.EndHorizontal();
 
         if (GUILayout.Button("Save this position") && camera != null)
         {
@@ -33,6 +40,14 @@ class CameraSaver : EditorWindow
             }
 
             positions.Add(camera.transform);
+
+            foreach(KeyValuePair<string, List<Transform>> pos in snapPositions)
+            {
+                for(int i = 0; i < pos.Value.Count; i++)
+                {
+                    Debug.Log(pos.Key + " " + pos.Value[i].position);
+                }
+            }
         }
     }
 }
