@@ -16,38 +16,53 @@ class CameraSaver : EditorWindow
         EditorWindow.GetWindow(typeof(CameraSaver));
     }
 
-    void OnGUI()
+    public Camera GetCameraScene()
+    {
+        return SceneView.lastActiveSceneView.camera;
+    }
+
+    public void SaveCurrentPosition(Camera _camera)
+    {
+        string currentScene = SceneManager.GetActiveScene().path;
+
+        List<Transform> positions;
+
+        if (!snapPositions.TryGetValue(currentScene, out positions))
+        {
+            positions = new List<Transform>();
+            snapPositions.Add(currentScene, positions);
+        }
+
+        positions.Add(_camera.transform);
+    }
+
+    public void ListCameras()
+    {
+        foreach (KeyValuePair<string, List<Transform>> pos in snapPositions)
+        {
+            for (int i = 0; i < pos.Value.Count; i++)
+            {
+                Debug.Log(pos.Key + " " + pos.Value[i].position);
+            }
+        }
+    }
+
+    private void OnGUI()
     {
         EditorGUILayout.BeginHorizontal();
 
         camera = EditorGUILayout.ObjectField("Camera", camera, typeof(Camera), true) as Camera;
 
         if (GUILayout.Button("Get scene camera"))
-            camera = SceneView.lastActiveSceneView.camera;
+            camera = GetCameraScene();
 
         EditorGUILayout.EndHorizontal();
 
         if (GUILayout.Button("Save this position") && camera != null)
         {
-            string currentScene = SceneManager.GetActiveScene().path;
+            SaveCurrentPosition(camera);
 
-            List<Transform> positions;
-
-            if(!snapPositions.TryGetValue(currentScene, out positions))
-            {
-                positions = new List<Transform>();
-                snapPositions.Add(currentScene, positions);
-            }
-
-            positions.Add(camera.transform);
-
-            foreach(KeyValuePair<string, List<Transform>> pos in snapPositions)
-            {
-                for(int i = 0; i < pos.Value.Count; i++)
-                {
-                    Debug.Log(pos.Key + " " + pos.Value[i].position);
-                }
-            }
+            ListCameras();
         }
     }
 }
