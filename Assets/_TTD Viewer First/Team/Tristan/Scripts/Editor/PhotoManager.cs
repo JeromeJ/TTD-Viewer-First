@@ -54,7 +54,7 @@ public class PhotoManager : EditorWindow
 
 
         // Remy part
-        m_photoFolder = EditorGUILayout.TextField("Path");
+        m_photoFolder = EditorGUILayout.TextField("Path", m_photoFolder);
         if (GUILayout.Button("Screenshot"))
         {
             // Create Photo Folder
