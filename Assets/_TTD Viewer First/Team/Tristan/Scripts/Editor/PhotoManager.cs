@@ -24,6 +24,12 @@ public class ScreenShotWindow : EditorWindow
 
     #endregion
     #region System
+
+    private void OnEnable()
+    {
+        original = GameObject.FindWithTag("MainCamera");
+    }
+
     #endregion
     #region Debug Tools & Utility
     #endregion
@@ -117,7 +123,7 @@ public class ScreenShotWindow : EditorWindow
     #endregion
     #region Private and Protected Members
     private Camera m_cam;
-    private GameObject original = GameObject.FindWithTag("MainCamera");
+    private GameObject original;
     private string m_path;
     #endregion
 }
