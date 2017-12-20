@@ -118,6 +118,28 @@ public class PhotoManager : EditorWindow
             }
         }
     }
+
+    public void TakeScreenshot(Camera _camera, string _filepath)
+    {
+        RenderTexture rt = new RenderTexture(_camera.pixelWidth, _camera.pixelHeight, 24);
+        _camera.targetTexture = rt;
+
+        Texture2D screenShot = new Texture2D(_camera.pixelWidth, _camera.pixelHeight, TextureFormat.RGB24, false);
+        _camera.Render();
+
+        RenderTexture.active = rt;
+        screenShot.ReadPixels(new Rect(0, 0, _camera.pixelWidth, _camera.pixelHeight), 0, 0);
+
+        _camera.targetTexture = null;
+
+        RenderTexture.active = null; // JC: added to avoid errors
+        DestroyImmediate(rt);
+
+        byte[] bytes = screenShot.EncodeToPNG();
+
+        System.IO.File.WriteAllBytes(_filepath, bytes);
+    }
+
     #endregion
     #region Private and Protected Members
     private Camera m_cam;
