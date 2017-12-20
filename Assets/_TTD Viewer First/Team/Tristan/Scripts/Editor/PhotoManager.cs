@@ -96,10 +96,12 @@ public class PhotoManager : EditorWindow
                 GameObject.DestroyImmediate(obj);
             }
         }
+
         if (GUILayout.Button("Reset Dict"))
         {
             m_snapPositions.Clear();
         }
+
         if (GUILayout.Button("Print Dict"))
         {
             DebugLogCamera(m_snapPositions);
