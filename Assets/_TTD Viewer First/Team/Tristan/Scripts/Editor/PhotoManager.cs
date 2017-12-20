@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.IO;
 
-public class ScreenShotWindow : EditorWindow
+public class PhotoManager : EditorWindow
 {
 
     #region Public Members
@@ -19,7 +19,7 @@ public class ScreenShotWindow : EditorWindow
     public static void ShowWindow()
     {
         //Show existing window instance. If one doesn't exist, make one.
-        EditorWindow.GetWindow(typeof(ScreenShotWindow));
+        EditorWindow.GetWindow(typeof(PhotoManager));
     }
 
     #endregion
