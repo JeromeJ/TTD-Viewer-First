@@ -43,7 +43,6 @@ public class PhotoManager : EditorWindow
 
     private void OnEnable()
     {
-        original = GameObject.FindWithTag("MainCamera");
         ParsingJSON.Pull("test.json", this);
     }
 
@@ -53,7 +52,6 @@ public class PhotoManager : EditorWindow
     #region GUI
     void OnGUI()
     {
-        //Jerome part
         EditorGUILayout.BeginHorizontal();
         camera = EditorGUILayout.ObjectField("Camera", camera, typeof(Camera), true) as Camera;
         if (GUILayout.Button("Get scene camera"))
@@ -62,51 +60,46 @@ public class PhotoManager : EditorWindow
 
         if (GUILayout.Button("Save this position") && camera != null)
         {
-            SaveCurrentPosition(camera);
-
-            ListCameras();
+            DebugLogCamera(SaveCurrentPosition(camera));
         }
-        //Jerome end
 
-
-        // Remy part
         m_photoFolder = EditorGUILayout.TextField("Path", m_photoFolder);
+
         if (GUILayout.Button("Screenshot"))
         {
             // Create Photo Folder
             Directory.CreateDirectory(m_photoFolder);
 
-            m_cam = Camera.Instantiate(original.GetComponent<Camera>());
-            Transform m_camTransform = m_cam.GetComponent<Transform>();
-            Debug.Log(m_snapPositions);
             foreach (KeyValuePair<string, List<Transform>> item in m_snapPositions)
             {
-                Debug.Log("--");
-                Debug.Log(item.Key);
-                Debug.Log(item.Value);
-                Debug.Log(item.Value.Count);
-                Debug.Log("--");
-
-                
-                string path = Path.GetFileName(m_photoFolder + "/" + item.Key);
-                
+                // Create directory for current Scene
                 string sceneName = Path.GetFileName(item.Key);
-                Debug.Log(sceneName);
-                Directory.CreateDirectory(m_photoFolder + "/" + sceneName);
-
-                //EditorSceneManager.OpenScene(item.Key);
+                string relScenePath = m_photoFolder + "/" + sceneName;
+                Directory.CreateDirectory(relScenePath);
+                EditorSceneManager.OpenScene(item.Key);
+                //Create Camera
+                GameObject obj = new GameObject();
+                Camera cam = obj.AddComponent(typeof(Camera)) as Camera;
+                // Loop between each position
                 int index = 0;
-                foreach (Transform transform in item.Value)
+                foreach (Transform t in item.Value)
                 {
-                    Debug.Log(transform);
-                    m_camTransform = transform;
-                    TakeScreenshot(m_cam, m_photoFolder + "/" + sceneName +  "/shoot" + index + ".png");
-                }
-            }
-            Camera.DestroyImmediate(m_cam);
-        }
-        // Remy end
+                    // Set new camera position & Take screenshot
+                    Debug.Log(t.position);
 
+                    cam.transform.position = t.position;
+                    cam.transform.rotation = t.rotation;
+                    cam.transform.localScale = t.localScale;
+                    TakeScreenshot(cam, relScenePath + "/shoot" + index + ".png");
+                    index++;
+                }
+                GameObject.DestroyImmediate(obj);
+            }
+        }
+        if (GUILayout.Button("Reset Dict"))
+        {
+            m_snapPositions.Clear();
+        }
     }
 
     #endregion
@@ -118,7 +111,7 @@ public class PhotoManager : EditorWindow
         return SceneView.lastActiveSceneView.camera;
     }
 
-    public void SaveCurrentPosition(Camera _camera)
+    public KeyValuePair<string, Transform> SaveCurrentPosition(Camera _camera)
     {
         string currentScene = SceneManager.GetActiveScene().path;
 
@@ -131,43 +124,73 @@ public class PhotoManager : EditorWindow
         }
 
         positions.Add(_camera.transform);
+
+        return new KeyValuePair<string, Transform>(currentScene, _camera.transform);
     }
 
-    public void ListCameras()
+    public void DebugLogCamera(Dictionary<string, List<Transform>> _positions)
     {
-        foreach (KeyValuePair<string, List<Transform>> pos in m_snapPositions)
+        foreach (KeyValuePair<string, List<Transform>> pos in _positions)
         {
             for (int i = 0; i < pos.Value.Count; i++)
             {
-                Debug.Log(pos.Key + " " + pos.Value[i].position);
+                DebugLogCamera(pos.Key, pos.Value[i]);
             }
         }
     }
 
+    public void DebugLogCamera(KeyValuePair<string, Transform> _pos)
+    {
+        DebugLogCamera(_pos.Key, _pos.Value);
+    }
+
+    public void DebugLogCamera(string _scene, Transform _position)
+    {
+        Debug.Log(_scene + " " + _position.position);
+    }
+
+    //
+    // TODO: Demander à Eloi s'il s'agit d'un snippet.
+    //
+
+    /// <summary>
+    /// Take a screenshot using the given camera and save it to the given path.
+    /// </summary>
+    /// <param name="_camera">The camera to take screenshot from.</param>
+    /// <param name="_filepath">The location to save the screenshot to.</param>
     public void TakeScreenshot(Camera _camera, string _filepath)
     {
-        RenderTexture rt = new RenderTexture(_camera.pixelWidth, _camera.pixelHeight, 24);
+        int width = _camera.pixelWidth;
+        int height = _camera.pixelHeight;
+
+        Texture2D screenShot = new Texture2D(width, height, TextureFormat.RGB24, false);
+        RenderTexture rt = new RenderTexture(width, height, 24);
+
+        // Camera will render its image in rt
         _camera.targetTexture = rt;
 
-        Texture2D screenShot = new Texture2D(_camera.pixelWidth, _camera.pixelHeight, TextureFormat.RGB24, false);
-        _camera.Render();
+            _camera.Render();
 
-        RenderTexture.active = rt;
-        screenShot.ReadPixels(new Rect(0, 0, _camera.pixelWidth, _camera.pixelHeight), 0, 0);
+            RenderTexture.active = rt;
+
+                // Save the image displayed on the active RenderTexture
+                screenShot.ReadPixels(new Rect(0, 0, width, height), 0, 0);
+
+            // Added to avoid errors
+            RenderTexture.active = null;
 
         _camera.targetTexture = null;
 
-        RenderTexture.active = null; // JC: added to avoid errors
         DestroyImmediate(rt);
 
         byte[] bytes = screenShot.EncodeToPNG();
 
-        System.IO.File.WriteAllBytes(_filepath, bytes);
+        File.WriteAllBytes(_filepath, bytes);
     }
 
     #endregion
     #region Private and Protected Members
-    private Camera m_cam;
+    //private Camera m_cam;
     private GameObject original;
     private string m_path;
     #endregion
