@@ -23,9 +23,9 @@ public class PhotoManager : EditorWindow
         }
     }
 
-    public Dictionary<string, List<Transform>> _snapPositions = new Dictionary<string, List<Transform>>();
+    public Dictionary<string, List<PseudoTransform>> _snapPositions = new Dictionary<string, List<PseudoTransform>>();
 
-    public Dictionary<string, List<Transform>> m_snapPositions
+    public Dictionary<string, List<PseudoTransform>> m_snapPositions
     {
         get { return _snapPositions; }
         set
@@ -89,7 +89,7 @@ public class PhotoManager : EditorWindow
             // Create Photo Folder
             Directory.CreateDirectory(m_photoFolder);
 
-            foreach (KeyValuePair<string, List<Transform>> item in m_snapPositions)
+            foreach (KeyValuePair<string, List<PseudoTransform>> item in m_snapPositions)
             {
                 // Create directory for current Scene
                 string sceneName = Path.GetFileName(item.Key);
@@ -101,7 +101,7 @@ public class PhotoManager : EditorWindow
                 Camera cam = obj.AddComponent(typeof(Camera)) as Camera;
                 // Loop between each position
                 int index = 0;
-                foreach (Transform t in item.Value)
+                foreach (PseudoTransform t in item.Value)
                 {
                     // Set new camera position & Take screenshot
                     Debug.Log(t.position);
@@ -109,6 +109,7 @@ public class PhotoManager : EditorWindow
                     cam.transform.position = t.position;
                     cam.transform.rotation = t.rotation;
                     cam.transform.localScale = t.localScale;
+
                     TakeScreenshot(cam, relScenePath + "/shoot" + index + ".png");
                     index++;
                 }
@@ -136,26 +137,33 @@ public class PhotoManager : EditorWindow
         return SceneView.lastActiveSceneView.camera;
     }
 
-    public KeyValuePair<string, Transform> SaveCurrentPosition(Camera _camera)
+    public KeyValuePair<string, PseudoTransform> SaveCurrentPosition(Camera _camera)
     {
         string currentScene = SceneManager.GetActiveScene().path;
 
-        List<Transform> positions;
+        List<PseudoTransform> positions;
 
         if (!m_snapPositions.TryGetValue(currentScene, out positions))
         {
-            positions = new List<Transform>();
+            positions = new List<PseudoTransform>();
             m_snapPositions.Add(currentScene, positions);
         }
 
-        positions.Add(_camera.transform);
+            PseudoTransform newPos = new PseudoTransform() {
+            position = _camera.transform.position,
+            rotation = _camera.transform.rotation,
+            localScale = _camera.transform.localScale,
 
-        return new KeyValuePair<string, Transform>(currentScene, _camera.transform);
+        };
+
+        positions.Add(newPos);
+
+        return new KeyValuePair<string, PseudoTransform>(currentScene, newPos);
     }
 
-    public void DebugLogCamera(Dictionary<string, List<Transform>> _positions)
+    public void DebugLogCamera(Dictionary<string, List<PseudoTransform>> _positions)
     {
-        foreach (KeyValuePair<string, List<Transform>> pos in _positions)
+        foreach (KeyValuePair<string, List<PseudoTransform>> pos in _positions)
         {
             for (int i = 0; i < pos.Value.Count; i++)
             {
@@ -164,12 +172,12 @@ public class PhotoManager : EditorWindow
         }
     }
 
-    public void DebugLogCamera(KeyValuePair<string, Transform> _pos)
+    public void DebugLogCamera(KeyValuePair<string, PseudoTransform> _pos)
     {
         DebugLogCamera(_pos.Key, _pos.Value);
     }
 
-    public void DebugLogCamera(string _scene, Transform _position)
+    public void DebugLogCamera(string _scene, PseudoTransform _position)
     {
         Debug.Log(_scene + " " + _position.position);
     }
@@ -215,8 +223,13 @@ public class PhotoManager : EditorWindow
 
     #endregion
     #region Private and Protected Members
-    //private Camera m_cam;
-    private GameObject original;
-    private string m_path;
+    
     #endregion
+}
+
+public class PseudoTransform
+{
+    public Vector3 position;
+    public Quaternion rotation;
+    public Vector3 localScale;
 }
