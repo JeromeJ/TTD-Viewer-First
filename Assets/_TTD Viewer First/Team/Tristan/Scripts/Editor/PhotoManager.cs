@@ -30,7 +30,7 @@ public class PhotoManager : EditorWindow
 
     private void OnEnable()
     {
-        original = GameObject.FindWithTag("MainCamera");
+        // original = GameObject.FindWithTag("MainCamera");
     }
 
     #endregion
@@ -39,7 +39,6 @@ public class PhotoManager : EditorWindow
     #region GUI
     void OnGUI()
     {
-        //Jerome part
         EditorGUILayout.BeginHorizontal();
         camera = EditorGUILayout.ObjectField("Camera", camera, typeof(Camera), true) as Camera;
         if (GUILayout.Button("Get scene camera"))
@@ -52,47 +51,44 @@ public class PhotoManager : EditorWindow
 
             ListCameras();
         }
-        //Jerome end
 
-
-        // Remy part
         m_photoFolder = EditorGUILayout.TextField("Path", m_photoFolder);
+
         if (GUILayout.Button("Screenshot"))
         {
             // Create Photo Folder
             Directory.CreateDirectory(m_photoFolder);
 
-            m_cam = Camera.Instantiate(original.GetComponent<Camera>());
-            Transform m_camTransform = m_cam.GetComponent<Transform>();
-            Debug.Log(m_snapPositions);
             foreach (KeyValuePair<string, List<Transform>> item in m_snapPositions)
             {
-                Debug.Log("--");
-                Debug.Log(item.Key);
-                Debug.Log(item.Value);
-                Debug.Log(item.Value.Count);
-                Debug.Log("--");
-
-                
-                string path = Path.GetFileName(m_photoFolder + "/" + item.Key);
-                
+                // Create directory for current Scene
                 string sceneName = Path.GetFileName(item.Key);
-                Debug.Log(sceneName);
-                Directory.CreateDirectory(m_photoFolder + "/" + sceneName);
-
-                //EditorSceneManager.OpenScene(item.Key);
+                string relScenePath = m_photoFolder + "/" + sceneName;
+                Directory.CreateDirectory(relScenePath);
+                EditorSceneManager.OpenScene(item.Key);
+                //Create Camera
+                GameObject obj = new GameObject();
+                Camera cam = obj.AddComponent(typeof(Camera)) as Camera;
+                // Loop between each position
                 int index = 0;
-                foreach (Transform transform in item.Value)
+                foreach (Transform t in item.Value)
                 {
-                    Debug.Log(transform);
-                    m_camTransform = transform;
-                    TakeScreenshot(m_cam, m_photoFolder + "/" + sceneName +  "/shoot" + index + ".png");
+                    // Set new camera position & Take screenshot
+                    Debug.Log(t.position);
+
+                    cam.transform.position = t.position;
+                    cam.transform.rotation = t.rotation;
+                    cam.transform.localScale = t.localScale;
+                    TakeScreenshot(cam, relScenePath + "/shoot" + index + ".png");
+                    index++;
                 }
             }
-            Camera.DestroyImmediate(m_cam);
+            //Camera.DestroyImmediate(m_cam);
         }
-        // Remy end
-
+        if (GUILayout.Button("Reset Dict"))
+        {
+            m_snapPositions.Clear();
+        }
     }
 
     #endregion
@@ -171,7 +167,7 @@ public class PhotoManager : EditorWindow
 
     #endregion
     #region Private and Protected Members
-    private Camera m_cam;
+    //private Camera m_cam;
     private GameObject original;
     private string m_path;
     #endregion
