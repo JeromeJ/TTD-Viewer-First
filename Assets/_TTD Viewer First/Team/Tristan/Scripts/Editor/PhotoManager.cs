@@ -10,9 +10,7 @@ using System;
 [Serializable]
 public class PhotoManager : EditorWindow
 {
-
     #region Public Members
-
     public string _photoFolder = "ScreenGallery";
 
     public string m_photoFolder
@@ -25,10 +23,31 @@ public class PhotoManager : EditorWindow
         }
     }
 
-    //public Path photopath = Path.("ScreenGallery");
-    static public Dictionary<string, List<Transform>> m_snapPositions = new Dictionary<string, List<Transform>>();
-    static public Camera camera;
+    private Dictionary<string, List<Transform>> _snapPositions = new Dictionary<string, List<Transform>>();
+
+    public Dictionary<string, List<Transform>> m_snapPositions
+    {
+        get { return _snapPositions; }
+        set
+        {
+            _snapPositions = value;
+            ParsingJSON.Push("test.json", this);
+        }
+    }
+
+    private Camera _camera;
+
+    public Camera camera
+    {
+        get { return _camera; }
+        set
+        {
+            _camera = value;
+            ParsingJSON.Push("test.json", this);
+        }
+    }
     #endregion
+
     #region Public Void
     // Add menu item named "ScreenShotWindow" to the Window menu
     [MenuItem("Window/ScreenshotWindow")]
