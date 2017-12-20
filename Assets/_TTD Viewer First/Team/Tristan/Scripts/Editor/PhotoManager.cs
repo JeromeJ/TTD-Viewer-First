@@ -87,6 +87,10 @@ public class PhotoManager : EditorWindow
         {
             m_snapPositions.Clear();
         }
+        if (GUILayout.Button("Print Dict"))
+        {
+            DebugLogCamera(m_snapPositions);
+        }
     }
 
     #endregion
