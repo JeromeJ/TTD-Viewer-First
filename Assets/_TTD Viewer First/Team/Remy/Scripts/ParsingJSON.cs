@@ -3,22 +3,16 @@ using UnityEngine;
 
 public class ParsingJSON 
 {
-
-    
-
     public static bool Pull(string _path, System.Object _data)
     {
-        bool _check;
-        if (File.Exists("test.json"))
+        bool exist = File.Exists("test.json");
+
+        if (exist)
         {
             JsonUtility.FromJsonOverwrite(File.ReadAllText(_path), _data);
-           _check = true;
         }
-        else
-        {
-            _check = false;
-        }
-        return _check;
+
+        return exist;
     }
 
     public static void Push(string _path, System.Object _data)
