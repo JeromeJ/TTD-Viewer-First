@@ -23,7 +23,7 @@ public class PhotoManager : EditorWindow
         }
     }
 
-    private Dictionary<string, List<Transform>> _snapPositions = new Dictionary<string, List<Transform>>();
+    public Dictionary<string, List<Transform>> _snapPositions = new Dictionary<string, List<Transform>>();
 
     public Dictionary<string, List<Transform>> m_snapPositions
     {
@@ -35,7 +35,7 @@ public class PhotoManager : EditorWindow
         }
     }
 
-    private Camera _camera;
+    public Camera _camera;
 
     public Camera camera
     {
