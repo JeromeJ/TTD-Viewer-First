@@ -4,10 +4,11 @@ using UnityEngine;
 public class ParsingJSON 
 {
 
-    public bool _check;
+    
 
     public static bool Pull(string _path, System.Object _data)
     {
+        bool _check;
         if (File.Exists("test.json"))
         {
             JsonUtility.FromJsonOverwrite(File.ReadAllText(_path), _data);
@@ -15,8 +16,9 @@ public class ParsingJSON
         }
         else
         {
-
+            _check = false;
         }
+        return _check;
     }
 
     public static void Push(string _path, System.Object _data)
