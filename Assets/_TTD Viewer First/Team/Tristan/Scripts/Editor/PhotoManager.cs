@@ -68,7 +68,7 @@ public class PhotoManager : EditorWindow
                 Directory.CreateDirectory(path);
                 string sceneName = Path.GetFileName(item.Key);
 
-                SceneManager.LoadScene(item.Key);
+                EditorSceneManager.OpenScene(item.Key);
                 int index = 0;
                 foreach (Transform transform in item.Value)
                 {
