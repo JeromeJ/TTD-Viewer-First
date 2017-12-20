@@ -130,25 +130,43 @@ public class PhotoManager : EditorWindow
         }
     }
 
+    //
+    // TODO: Demander à Eloi s'il s'agit d'un snippet.
+    //
+
+    /// <summary>
+    /// Take a screenshot using the given camera and save it to the given path.
+    /// </summary>
+    /// <param name="_camera">The camera to take screenshot from.</param>
+    /// <param name="_filepath">The location to save the screenshot to.</param>
     public void TakeScreenshot(Camera _camera, string _filepath)
     {
-        RenderTexture rt = new RenderTexture(_camera.pixelWidth, _camera.pixelHeight, 24);
+        int width = _camera.pixelWidth;
+        int height = _camera.pixelHeight;
+
+        Texture2D screenShot = new Texture2D(width, height, TextureFormat.RGB24, false);
+        RenderTexture rt = new RenderTexture(width, height, 24);
+
+        // Camera will render its image in rt
         _camera.targetTexture = rt;
 
-        Texture2D screenShot = new Texture2D(_camera.pixelWidth, _camera.pixelHeight, TextureFormat.RGB24, false);
-        _camera.Render();
+            _camera.Render();
 
-        RenderTexture.active = rt;
-        screenShot.ReadPixels(new Rect(0, 0, _camera.pixelWidth, _camera.pixelHeight), 0, 0);
+            RenderTexture.active = rt;
+
+                // Save the image displayed on the active RenderTexture
+                screenShot.ReadPixels(new Rect(0, 0, width, height), 0, 0);
+
+            // Added to avoid errors
+            RenderTexture.active = null;
 
         _camera.targetTexture = null;
 
-        RenderTexture.active = null; // JC: added to avoid errors
         DestroyImmediate(rt);
 
         byte[] bytes = screenShot.EncodeToPNG();
 
-        System.IO.File.WriteAllBytes(_filepath, bytes);
+        File.WriteAllBytes(_filepath, bytes);
     }
 
     #endregion
