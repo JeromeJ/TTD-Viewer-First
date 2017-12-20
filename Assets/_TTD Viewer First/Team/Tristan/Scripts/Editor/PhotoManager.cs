@@ -7,11 +7,24 @@ using System.IO;
 using UnityEditor.SceneManagement;
 using System;
 
+[Serializable]
 public class PhotoManager : EditorWindow
 {
 
     #region Public Members
-    static public string m_photoFolder = "ScreenGallery";
+
+    public string _photoFolder = "ScreenGallery";
+
+    public string m_photoFolder
+    {
+        get { return _photoFolder; }
+        set
+        {
+            _photoFolder = value;
+            ParsingJSON.Push("test.json", this);
+        }
+    }
+
     //public Path photopath = Path.("ScreenGallery");
     static public Dictionary<string, List<Transform>> m_snapPositions = new Dictionary<string, List<Transform>>();
     static public Camera camera;
@@ -31,6 +44,7 @@ public class PhotoManager : EditorWindow
     private void OnEnable()
     {
         original = GameObject.FindWithTag("MainCamera");
+        ParsingJSON.Pull("test.json", this);
     }
 
     #endregion
