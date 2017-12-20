@@ -66,19 +66,18 @@ public class PhotoManager : EditorWindow
             {
                 string path = m_photoFolder + "/" + item.Key;
                 Directory.CreateDirectory(path);
-                //if (Scene.path != item.Key)
-                //{
+                string sceneName = Path.GetFileName(item.Key);
 
                 SceneManager.LoadScene(item.Key);
+                int index = 0;
                 foreach (Transform transform in item.Value)
                 {
                     m_camTransform = transform;
-                    ScreenCapture.CaptureScreenshot("test.png");
-                    //Debug.Log("T(coucou): oucou ");
+                    ScreenCapture.CaptureScreenshot(path + "/shoot" + index);
                 }
 
 
-                //}
+
 
             }
         }
