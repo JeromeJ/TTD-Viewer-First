@@ -4,6 +4,8 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.IO;
+using UnityEditor.SceneManagement;
+using System;
 
 public class PhotoManager : EditorWindow
 {
@@ -62,28 +64,37 @@ public class PhotoManager : EditorWindow
 
             m_cam = Camera.Instantiate(original.GetComponent<Camera>());
             Transform m_camTransform = m_cam.GetComponent<Transform>();
+            Debug.Log(m_snapPositions);
             foreach (KeyValuePair<string, List<Transform>> item in m_snapPositions)
             {
-                string path = m_photoFolder + "/" + item.Key;
-                Directory.CreateDirectory(path);
-                string sceneName = Path.GetFileName(item.Key);
+                Debug.Log("--");
+                Debug.Log(item.Key);
+                Debug.Log(item.Value);
+                Debug.Log(item.Value.Count);
+                Debug.Log("--");
 
-                EditorSceneManager.OpenScene(item.Key);
+                
+                string path = Path.GetFileName(m_photoFolder + "/" + item.Key);
+                
+                string sceneName = Path.GetFileName(item.Key);
+                Debug.Log(sceneName);
+                Directory.CreateDirectory(m_photoFolder + "/" + sceneName);
+
+                //EditorSceneManager.OpenScene(item.Key);
                 int index = 0;
                 foreach (Transform transform in item.Value)
                 {
+                    Debug.Log(transform);
                     m_camTransform = transform;
-                    ScreenCapture.CaptureScreenshot(path + "/shoot" + index);
+                    TakeScreenshot(m_cam, m_photoFolder + "/" + sceneName +  "/shoot" + index + ".png");
                 }
-
-
-
-
             }
+            Camera.DestroyImmediate(m_cam);
         }
         // Remy end
 
     }
+
     #endregion
     #region Class Methods
 
