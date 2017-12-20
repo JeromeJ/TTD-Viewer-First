@@ -47,9 +47,7 @@ public class PhotoManager : EditorWindow
 
         if (GUILayout.Button("Save this position") && camera != null)
         {
-            SaveCurrentPosition(camera);
-
-            ListCameras();
+            DebugLogCamera(SaveCurrentPosition(camera));
         }
 
         m_photoFolder = EditorGUILayout.TextField("Path", m_photoFolder);
@@ -82,8 +80,8 @@ public class PhotoManager : EditorWindow
                     TakeScreenshot(cam, relScenePath + "/shoot" + index + ".png");
                     index++;
                 }
+                GameObject.DestroyImmediate(obj);
             }
-            //Camera.DestroyImmediate(m_cam);
         }
         if (GUILayout.Button("Reset Dict"))
         {
@@ -100,7 +98,7 @@ public class PhotoManager : EditorWindow
         return SceneView.lastActiveSceneView.camera;
     }
 
-    public void SaveCurrentPosition(Camera _camera)
+    public KeyValuePair<string, Transform> SaveCurrentPosition(Camera _camera)
     {
         string currentScene = SceneManager.GetActiveScene().path;
 
@@ -113,17 +111,29 @@ public class PhotoManager : EditorWindow
         }
 
         positions.Add(_camera.transform);
+
+        return new KeyValuePair<string, Transform>(currentScene, _camera.transform);
     }
 
-    public void ListCameras()
+    public void DebugLogCamera(Dictionary<string, List<Transform>> _positions)
     {
-        foreach (KeyValuePair<string, List<Transform>> pos in m_snapPositions)
+        foreach (KeyValuePair<string, List<Transform>> pos in _positions)
         {
             for (int i = 0; i < pos.Value.Count; i++)
             {
-                Debug.Log(pos.Key + " " + pos.Value[i].position);
+                DebugLogCamera(pos.Key, pos.Value[i]);
             }
         }
+    }
+
+    public void DebugLogCamera(KeyValuePair<string, Transform> _pos)
+    {
+        DebugLogCamera(_pos.Key, _pos.Value);
+    }
+
+    public void DebugLogCamera(string _scene, Transform _position)
+    {
+        Debug.Log(_scene + " " + _position.position);
     }
 
     //
