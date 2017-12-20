@@ -9,7 +9,8 @@ public class PhotoManager : EditorWindow
 {
 
     #region Public Members
-    public string m_photoFolder;
+    static public string m_photoFolder = "ScreenGallery";
+    //public Path photopath = Path.("ScreenGallery");
     static public Dictionary<string, List<Transform>> m_snapPositions = new Dictionary<string, List<Transform>>();
     static public Camera camera;
     #endregion
@@ -38,12 +39,9 @@ public class PhotoManager : EditorWindow
     {
         //Jerome part
         EditorGUILayout.BeginHorizontal();
-
         camera = EditorGUILayout.ObjectField("Camera", camera, typeof(Camera), true) as Camera;
-
         if (GUILayout.Button("Get scene camera"))
             camera = GetCameraScene();
-
         EditorGUILayout.EndHorizontal();
 
         if (GUILayout.Button("Save this position") && camera != null)
@@ -56,34 +54,35 @@ public class PhotoManager : EditorWindow
 
 
         // Remy part
-        //if (GUILayout.Button("Screenshot"))
-        //{
-        //    // Create Photo Folder
-        //    Directory.CreateDirectory(m_photoFolder);
+        m_photoFolder = EditorGUILayout.TextField("Path");
+        if (GUILayout.Button("Screenshot"))
+        {
+            // Create Photo Folder
+            Directory.CreateDirectory(m_photoFolder);
 
-        //    m_cam = Camera.Instantiate(original.GetComponent<Camera>(), new Vector3(0, 0, 0), Quaternion.FromToRotation(new Vector3(0, 0, 0), new Vector3(0, 0, 1)));
-        //    Transform m_camTransform = m_cam.GetComponent<Transform>();
-        //    foreach (KeyValuePair<string, List<Transform>> item in m_snapPositions)
-        //    {
-        //        string path = m_photoFolder + "/" + item.Key;
-        //        Directory.CreateDirectory(path);
-        //        //if (Scene.path != item.Key)
-        //        //{
+            m_cam = Camera.Instantiate(original.GetComponent<Camera>());
+            Transform m_camTransform = m_cam.GetComponent<Transform>();
+            foreach (KeyValuePair<string, List<Transform>> item in m_snapPositions)
+            {
+                string path = m_photoFolder + "/" + item.Key;
+                Directory.CreateDirectory(path);
+                //if (Scene.path != item.Key)
+                //{
 
-        //        SceneManager.LoadScene(item.Key);
-        //        foreach (Transform transform in item.Value)
-        //        {
-        //            m_camTransform = transform;
-        //            ScreenCapture.CaptureScreenshot("test.png");
-        //            //Debug.Log("T(coucou): oucou ");
-        //        }
+                SceneManager.LoadScene(item.Key);
+                foreach (Transform transform in item.Value)
+                {
+                    m_camTransform = transform;
+                    ScreenCapture.CaptureScreenshot("test.png");
+                    //Debug.Log("T(coucou): oucou ");
+                }
 
 
-        //        //}
+                //}
 
-        //    }
-        //}
-    // Remy end
+            }
+        }
+        // Remy end
 
     }
     #endregion
